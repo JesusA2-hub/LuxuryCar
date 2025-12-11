@@ -1,4 +1,4 @@
-# 🚗 LuxuryCar: Plataforma Global de Subastas y Venta de Vehículos de Lujo
+# # 🚗 LuxuryCar: Plataforma Global de Subastas y Venta de Vehículos de Lujo
 
 [![Estado del Proyecto](https://img.shields.io/badge/Estado-Producci%C3%B3n%20%2F%20Beta-blue.svg)](https://app.luxurycar.com/status)
 [![Licencia](https://img.shields.io/badge/Licencia-PROPIETARIA-red.svg)](LICENSE)
@@ -33,3 +33,46 @@ El proyecto sigue una arquitectura de **Microservicios** para garantizar escalab
 ## ⚙️ Estructura del Proyecto
 
 El proyecto está dividido en varios repositorios que corresponden a los microservicios.
+## 🚀 Cómo Ejecutar el Proyecto (Desarrollo Local)
+
+Para levantar el ecosistema completo de microservicios, se utiliza Docker Compose.
+
+1.  **Requisitos:**
+    * Docker y Docker Compose instalados.
+    * Node.js (v18+) y TypeScript.
+
+2.  **Configuración de Entorno:**
+    * Clona el repositorio.
+    * Crea el archivo `.env` en el directorio raíz (`/services/`) con las credenciales de PostgreSQL (ver plantilla `.env.example`).
+    * Configura las claves de API de AWS/GCP para servicios de almacenamiento de imágenes.
+
+3.  **Levantar el Entorno:**
+    ```bash
+    # Construye y levanta todos los contenedores de microservicios, PostgreSQL y Kafka
+    docker-compose up --build -d
+    
+    # Instala dependencias en el cliente móvil
+    cd mobile-app
+    npm install
+    npx react-native run-ios # o run-android
+    ```
+
+## 🔒 Reglas de Seguridad Clave
+
+Dada la naturaleza de alto valor de las transacciones:
+
+* Las reglas de la base de datos fuerzan la integridad referencial de `PAGO`, `USUARIO` y `AUTO`.
+* El *payments-service* solo permite transacciones verificadas por un servicio externo (Stripe/Adyen).
+* El acceso a la gestión de `VENDEDOR` está restringido por roles.
+
+## 🤝 Contribuciones
+
+Agradecemos contribuciones enfocadas en la optimización de la latencia en el *auctions-service* y la seguridad del *payments-service*.
+
+Por favor, lea la [GUÍA DE CONTRIBUCIÓN](CONTRIBUTING.md) antes de abrir un *Pull Request*.
+
+---
+📧 **Contacto:**
+Soporte Técnico: gtid143@gmail.com
+Desarrollado por: TPM.com
+LuxuryCar © 2025
