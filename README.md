@@ -23,9 +23,11 @@ La aplicación sigue el patrón **MVVM**, separando responsabilidades:
 - ✅ Mejor testeo y depuración
 
 ---
-## 📷 Capturas de Pantalla ()
+## 📷 Capturas de Pantalla (screenshots)
 
 Aquí algunas capturas de la aplicación LuxuryCar:
+<img width="1174" height="763" alt="image" src="https://github.com/user-attachments/assets/8cbbac19-15a9-4459-bebb-fa4ac253a57e" />
+
 
 
 
