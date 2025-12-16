@@ -1596,19 +1596,6 @@ MIT License - Ver archivo LICENSE para más detalles
 - 🐛 **Issues**: GitHub Issues
 - 💬 **Discusiones**: GitHub Discussions
 
----
-
-## 🚀 ROADMAP
-
-### v1.1 (Próximo)
-- Imágenes de autos
-- Búsqueda avanzada
-- Filtros por precio
-
-### v2.0 (Futuro)
-- Autenticación Firebase Auth
-- Chat en tiempo real
-- Pasarelas de pago reales
 
 ---
 
@@ -1616,13 +1603,3 @@ MIT License - Ver archivo LICENSE para más detalles
 
 *Desarrollado con ❤️ por el equipo LuxuryCar*
 
----
-
-**FIN DEL DOCUMENTO**
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = price, 
-            onValueChange = { price = it }, 
-            label = { Text("Precio") }, 
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
