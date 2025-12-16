@@ -71,41 +71,87 @@ buildscript {
 ### `build.gradle` (Module: app)
 
 ```gradle
+// Bloque de plugins utilizados por el módulo app
 plugins {
+
+    // Plugin principal para aplicaciones Android
+    // Permite compilar, ejecutar y empaquetar la app
     id("com.android.application")
+
+    // Plugin que habilita Kotlin en proyectos Android
+    // Permite usar el lenguaje Kotlin
     id("org.jetbrains.kotlin.android")
+
+    // Plugin necesario para integrar servicios de Google
+    // Requerido para usar Firebase
     id("com.google.gms.google-services")
 }
 
+// Configuración principal de Android
 android {
+
+    // Versión del SDK utilizada para compilar la aplicación
     compileSdk = 34
 
+    // Configuración base de la aplicación
     defaultConfig {
+
+        // Identificador único de la app
+        // Debe coincidir con el registrado en Firebase
         applicationId = "com.example.luxurycar"
+
+        // Versión mínima de Android soportada
         minSdk = 24
+
+        // Versión máxima de Android objetivo
         targetSdk = 34
+
+        // Código interno de versión (entero)
         versionCode = 1
+
+        // Versión visible para el usuario
         versionName = "1.0"
     }
 
+    // Habilita características adicionales del proyecto
     buildFeatures {
+
+        // Activa Jetpack Compose para la interfaz gráfica
         compose = true
     }
 
+    // Opciones específicas de Jetpack Compose
     composeOptions {
+
+        // Versión del compilador de Compose compatible con Kotlin
         kotlinCompilerExtensionVersion = "1.5.3"
     }
 }
 
+// Dependencias externas del proyecto
 dependencies {
+
+    // BOM de Firebase
+    // Asegura compatibilidad entre librerías Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+
+    // Librería de Firebase Firestore (base de datos NoSQL)
     implementation("com.google.firebase:firebase-firestore")
 
+    // Librería base de UI para Jetpack Compose
     implementation("androidx.compose.ui:ui")
+
+    // Material Design 3 para Compose
+    // Proporciona componentes modernos y estilos
     implementation("androidx.compose.material3:material3")
+
+    // ViewModel integrado con Jetpack Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
+
+    // Corrutinas para manejo de procesos en segundo plano
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android")
 }
+
 ```
 
 ---
@@ -125,13 +171,30 @@ dependencies {
 ### `Car.kt`
 
 ```kotlin
+// Clase de datos que representa un automóvil
 data class Car(
-    val id: String = "",
-    val brand: String = "",
-    val model: String = "",
-    val year: Int = 0,
-    val price: Double = 0.0,
-    val isFavorite: Boolean = false
+// Identificador único del auto (Firestore)
+val id: String = "",
+
+
+// Marca del vehículo
+val brand: String = "",
+
+
+// Modelo del vehículo
+val model: String = "",
+
+
+// Año de fabricación
+val year: Int = 0,
+
+
+// Precio del vehículo
+val price: Double = 0.0,
+
+
+// Indica si está marcado como favorito
+val isFavorite: Boolean = false
 )
 ```
 
@@ -140,11 +203,22 @@ data class Car(
 ### `Purchase.kt`
 
 ```kotlin
+// Clase que representa una compra realizada por un usuario
 data class Purchase(
-    val carId: String = "",
-    val userId: String = "",
-    val date: String = "",
-    val total: Double = 0.0
+// ID del auto comprado
+val carId: String = "",
+
+
+// ID del usuario
+val userId: String = "",
+
+
+// Fecha de compra
+val date: String = "",
+
+
+// Total pagado
+val total: Double = 0.0
 )
 ```
 
@@ -157,28 +231,55 @@ data class Purchase(
 ### `CarRepository.kt`
 
 ```kotlin
+// Clase repositorio encargada de manejar el acceso a Firebase Firestore
+// Sigue el patrón Repository dentro de la arquitectura MVVM
 class CarRepository {
 
+    // Obtiene una instancia de la base de datos Firestore
+    // Esta instancia permite realizar operaciones CRUD
     private val db = FirebaseFirestore.getInstance()
 
+    // Función que obtiene la lista de autos desde Firestore
+    // onResult es una función callback que devuelve una lista de objetos Car
     fun getCars(onResult: (List<Car>) -> Unit) {
+
+        // Accede a la colección llamada "cars" en Firestore
         db.collection("cars")
+
+            // Listener en tiempo real que detecta cambios en la colección
+            // Se ejecuta cada vez que se agrega, elimina o modifica un documento
             .addSnapshotListener { snapshot, _ ->
+
+                // Convierte los documentos obtenidos en objetos de tipo Car
+                // mapNotNull evita valores nulos
                 val cars = snapshot?.documents?.mapNotNull {
+
+                    // Convierte cada documento Firestore a un objeto Car
+                    // copy(id = it.id) asigna el ID del documento al modelo
                     it.toObject(Car::class.java)?.copy(id = it.id)
-                } ?: emptyList()
+
+                } ?: emptyList() // Si no hay datos, devuelve una lista vacía
+
+                // Devuelve la lista final de autos al ViewModel
                 onResult(cars)
             }
     }
 
+    // Función para agregar un nuevo auto a la base de datos
     fun addCar(car: Car) {
+
+        // Inserta el objeto Car dentro de la colección "cars"
         db.collection("cars").add(car)
     }
 
+    // Función para eliminar un auto usando su ID
     fun deleteCar(id: String) {
+
+        // Accede al documento específico por ID y lo elimina
         db.collection("cars").document(id).delete()
     }
 }
+
 ```
 
 **Explicación**: 
@@ -193,27 +294,49 @@ class CarRepository {
 ### `CarViewModel.kt`
 
 ```kotlin
+// ViewModel encargado de manejar la lógica de negocio
+// y el estado de los autos dentro de la arquitectura MVVM
 class CarViewModel : ViewModel() {
 
+    // Instancia del repositorio que gestiona el acceso a Firebase
     private val repository = CarRepository()
 
+    // StateFlow privado que almacena la lista de autos
+    // MutableStateFlow permite modificar el valor
     private val _cars = MutableStateFlow<List<Car>>(emptyList())
+
+    // StateFlow público de solo lectura
+    // La UI observa este estado sin poder modificarlo
     val cars: StateFlow<List<Car>> = _cars
 
+    // Bloque init: se ejecuta automáticamente al crear el ViewModel
     init {
+
+        // Obtiene la lista de autos desde el repositorio
+        // Cada vez que Firebase cambia, se actualiza el StateFlow
         repository.getCars {
+
+            // Asigna la nueva lista de autos al estado observable
             _cars.value = it
         }
     }
 
+    // Función que permite agregar un nuevo auto
+    // Llama directamente al repositorio
     fun addCar(car: Car) {
+
+        // Envía el auto a Firebase para guardarlo
         repository.addCar(car)
     }
 
+    // Función que permite eliminar un auto por su ID
     fun deleteCar(id: String) {
+
+        // Llama al repositorio para eliminar el auto
         repository.deleteCar(id)
     }
 }
+
 ```
 
 **Explicación**:
@@ -226,15 +349,28 @@ class CarViewModel : ViewModel() {
 ## 📱 MainActivity
 
 ```kotlin
+// MainActivity: Punto de entrada principal de la aplicación
+// Hereda de ComponentActivity, compatible con Jetpack Compose
 class MainActivity : ComponentActivity() {
+
+    // Método que se ejecuta al crear la actividad
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState) // Llama al constructor de la superclase
+
+        // setContent define la UI usando Jetpack Compose
         setContent {
+
+            // Instancia del ViewModel asociado a esta actividad
+            // viewModel() crea o recupera un ViewModel existente
             val carViewModel: CarViewModel = viewModel()
+
+            // Llama a la pantalla principal (HomeScreen)
+            // Pasando el ViewModel para observar y manejar la lista de autos
             HomeScreen(carViewModel)
         }
     }
 }
+
 ```
 
 ---
@@ -244,63 +380,94 @@ class MainActivity : ComponentActivity() {
 ### 1. `HomeScreen.kt` - Pantalla Principal
 
 ```kotlin
+// Composable que representa la pantalla principal de la aplicación
+// Muestra la lista de autos disponibles
 @Composable
 fun HomeScreen(viewModel: CarViewModel) {
+
+    // Observa el StateFlow de la lista de autos desde el ViewModel
+    // collectAsState() convierte el flujo en un estado observable por Compose
     val cars by viewModel.cars.collectAsState()
 
+    // LazyColumn permite crear una lista vertical desplazable
     LazyColumn {
+
+        // items recorre la lista de autos
         items(cars) { car ->
+
+            // Muestra información básica de cada auto:
+            // Marca, modelo y precio
             Text(text = "${car.brand} ${car.model} - $${car.price}")
         }
     }
 }
+
 ```
 
 ### 2. `LoginScreen.kt` - Autenticación
 
 ```kotlin
+// Composable que representa la pantalla de inicio de sesión
+// onLoginSuccess es un callback que se ejecuta cuando el usuario inicia sesión correctamente
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit) {
+
+    // Estado local para almacenar el correo ingresado por el usuario
     var email by remember { mutableStateOf("") }
+
+    // Estado local para almacenar la contraseña ingresada
     var password by remember { mutableStateOf("") }
 
+    // Column organiza los elementos de forma vertical
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+            .fillMaxSize() // Ocupa toda la pantalla
+            .padding(16.dp), // Padding interno de 16dp
+        verticalArrangement = Arrangement.Center // Centra los elementos verticalmente
     ) {
-        Text(text = "LuxuryCar", style = MaterialTheme.typography.headlineLarge)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Correo electrónico") },
-            modifier = Modifier.fillMaxWidth()
+        // Título de la aplicación
+        Text(
+            text = "LuxuryCar",
+            style = MaterialTheme.typography.headlineLarge // Estilo de texto grande
         )
 
+        // Espacio de separación de 16dp
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Campo de texto para el correo electrónico
+        TextField(
+            value = email, // Valor actual del input
+            onValueChange = { email = it }, // Actualiza el estado cuando el usuario escribe
+            label = { Text("Correo electrónico") }, // Etiqueta del campo
+            modifier = Modifier.fillMaxWidth() // Ocupa todo el ancho disponible
+        )
+
+        // Espacio de separación de 8dp
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Campo de texto para la contraseña
         TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation()
+            value = password, // Valor actual del input
+            onValueChange = { password = it }, // Actualiza el estado
+            label = { Text("Contraseña") }, // Etiqueta del campo
+            modifier = Modifier.fillMaxWidth(), // Ocupa todo el ancho
+            visualTransformation = PasswordVisualTransformation() // Oculta el texto como contraseña
         )
 
+        // Espacio de separación de 16dp
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Botón de inicio de sesión
         Button(
-            onClick = { onLoginSuccess() },
-            modifier = Modifier.fillMaxWidth()
+            onClick = { onLoginSuccess() }, // Llama al callback al hacer click
+            modifier = Modifier.fillMaxWidth() // Ocupa todo el ancho
         ) {
+            // Texto del botón
             Text("Iniciar sesión")
         }
     }
 }
+
 ```
 
 **Características**:
@@ -311,42 +478,62 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 ### 3. `Navigation.kt` - Sistema de Navegación
 
 ```kotlin
+// Composable que gestiona la navegación de la aplicación usando Jetpack Compose
+// viewModel se pasa para que las pantallas puedan acceder a la lista de autos
 @Composable
 fun AppNavigation(viewModel: CarViewModel) {
+
+    // Crea o recuerda un NavController para controlar la navegación
     val navController = rememberNavController()
 
+    // NavHost define el grafo de navegación de la app
+    // startDestination indica la primera pantalla que se mostrará
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "login" // Pantalla inicial: Login
     ) {
+
+        // Definición de la ruta "login"
         composable("login") {
+            // Llama a LoginScreen y define el callback al iniciar sesión
             LoginScreen {
+                // Navega a la pantalla Home al iniciar sesión
                 navController.navigate("home") {
+                    // Elimina la pantalla login del backstack para evitar volver atrás
                     popUpTo("login") { inclusive = true }
                 }
             }
         }
 
+        // Ruta "home" que muestra la pantalla principal
         composable("home") {
-            HomeScreen(viewModel)
+            HomeScreen(viewModel) // Pasa el ViewModel para mostrar autos
         }
 
+        // Ruta de detalle con parámetro dinámico carId
         composable("detail/{carId}") { backStackEntry ->
+            // Obtiene el ID del auto desde los argumentos de la ruta
             val carId = backStackEntry.arguments?.getString("carId") ?: ""
+
+            // Llama a CarDetailScreen pasando el ID del auto
             CarDetailScreen(carId)
         }
 
+        // Ruta "auction" que muestra la pantalla de subastas
         composable("auction") {
             AuctionScreen()
         }
 
+        // Ruta "payment" que muestra la pantalla de pago
         composable("payment") {
             PaymentScreen {
+                // Al completar el pago, regresa a la pantalla anterior
                 navController.popBackStack()
             }
         }
     }
 }
+
 ```
 
 **Características**:
@@ -357,78 +544,115 @@ fun AppNavigation(viewModel: CarViewModel) {
 ### 4. `CarDetailScreen.kt` - Detalle del Vehículo
 
 ```kotlin
+// Composable que muestra los detalles de un vehículo específico
+// carId es el identificador del auto que se desea mostrar
 @Composable
 fun CarDetailScreen(carId: String) {
+
+    // Column organiza los elementos de forma vertical
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+            .fillMaxSize() // Ocupa toda la pantalla
+            .padding(16.dp) // Padding interno de 16dp
     ) {
+
+        // Título de la pantalla de detalle
         Text(
             text = "Detalle del vehículo",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium // Estilo de texto mediano
         )
 
+        // Espacio de separación de 8dp
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Muestra el ID del vehículo
         Text(text = "ID del vehículo: $carId")
 
+        // Espacio de separación de 16dp
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { /* Navegar a pago */ }) {
+        // Botón para iniciar el proceso de compra
+        Button(
+            onClick = { /* Aquí se podría navegar a la pantalla de pago */ }
+        ) {
+            // Texto del botón
             Text("Comprar ahora")
         }
     }
 }
+
 ```
 
 ### 5. `AuctionScreen.kt` - Subastas
 
 ```kotlin
+// Composable que muestra la pantalla de subastas en vivo
 @Composable
 fun AuctionScreen() {
+
+    // Column organiza los elementos de forma vertical
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+            .fillMaxSize() // Ocupa toda la pantalla
+            .padding(16.dp) // Padding interno de 16dp
     ) {
+
+        // Título de la pantalla de subastas
         Text(
             text = "Subastas en vivo",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium // Estilo de texto mediano
         )
 
+        // Espacio de separación de 16dp
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { }) {
+        // Botón para realizar una puja en la subasta
+        Button(
+            onClick = { /* Aquí se podría implementar la acción de pujar */ }
+        ) {
+            // Texto del botón
             Text("Pujar")
         }
     }
 }
+
 ```
 
 ### 6. `PaymentScreen.kt` - Proceso de Pago
 
 ```kotlin
+// Composable que representa la pantalla de pago del vehículo
+// onPaymentSuccess es un callback que se ejecuta al completar el pago
 @Composable
 fun PaymentScreen(onPaymentSuccess: () -> Unit) {
+
+    // Column organiza los elementos verticalmente
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+            .fillMaxSize() // Ocupa toda la pantalla
+            .padding(16.dp), // Padding interno de 16dp
+        verticalArrangement = Arrangement.Center // Centra los elementos verticalmente
     ) {
+
+        // Título de la pantalla de pago
         Text(
             text = "Pago del vehículo",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium // Estilo de texto mediano
         )
 
+        // Espacio de separación de 16dp
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { onPaymentSuccess() }) {
+        // Botón para confirmar el pago
+        Button(
+            onClick = { onPaymentSuccess() } // Llama al callback al hacer click
+        ) {
+            // Texto del botón
             Text("Confirmar pago")
         }
     }
 }
+
 ```
 
 ---
@@ -436,9 +660,15 @@ fun PaymentScreen(onPaymentSuccess: () -> Unit) {
 ## ❤️ Sistema de Favoritos
 
 ```kotlin
+// Función que alterna el estado de favorito de un auto
+// Recibe un objeto Car y devuelve un nuevo objeto Car con el estado actualizado
 fun toggleFavorite(car: Car): Car {
+
+    // copy() crea una copia del objeto Car existente
+    // isFavorite = !car.isFavorite invierte el valor actual de isFavorite
     return car.copy(isFavorite = !car.isFavorite)
 }
+
 ```
 
 **Explicación**: Alterna el estado de favorito de un vehículo.
@@ -450,23 +680,36 @@ fun toggleFavorite(car: Car): Car {
 ### `Color.kt`
 
 ```kotlin
+// Definición de color dorado para el tema de la aplicación
+// Se usa como color principal para dar un aspecto premium
 val Gold = Color(0xFFD4AF37)
+
+// Definición de color negro para el tema de la aplicación
+// Se usa como color de fondo y para contraste con el dorado
 val Black = Color(0xFF000000)
+
 ```
 
 ### `Theme.kt`
 
 ```kotlin
+// Composable que define el tema visual de la aplicación LuxuryCar
+// Aplica colores, tipografía y estilos a toda la UI de Compose
 @Composable
 fun LuxuryCarTheme(content: @Composable () -> Unit) {
+
+    // MaterialTheme es el tema principal de Jetpack Compose
+    // colorScheme define la paleta de colores de la app
     MaterialTheme(
         colorScheme = lightColorScheme(
-            primary = Gold,
-            background = Black
+            primary = Gold,   // Color principal (dorado) para botones, destacados y elementos importantes
+            background = Black // Color de fondo general (negro) para toda la app
         ),
+        // content representa todas las pantallas/composables que usarán este tema
         content = content
     )
 }
+
 ```
 
 ### `Type.kt`
@@ -487,24 +730,34 @@ val Typography = Typography()
 ### Prueba Unitaria Básica
 
 ```kotlin
+// Importa la anotación @Test para marcar métodos de prueba
 import org.junit.Test
+
+// Importa las funciones de aserción de JUnit
 import org.junit.Assert.*
 
+// Clase de prueba para el modelo Car
 class CarTest {
 
+    // Método de prueba para verificar que el precio del auto sea mayor que cero
     @Test
     fun carPrice_isGreaterThanZero() {
+
+        // Crea un objeto Car de ejemplo para la prueba
         val car = Car(
-            id = "1",
-            brand = "Ferrari",
-            model = "Roma",
-            year = 2024,
-            price = 250000.0
+            id = "1",           // ID del auto
+            brand = "Ferrari",  // Marca
+            model = "Roma",     // Modelo
+            year = 2024,        // Año de fabricación
+            price = 250000.0    // Precio del vehículo
         )
 
+        // Verifica que el precio del auto sea mayor que 0
+        // assertTrue pasa la prueba si la condición es verdadera
         assertTrue(car.price > 0)
     }
 }
+
 ```
 
 **Explicación**:
