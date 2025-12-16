@@ -219,7 +219,7 @@ purchases/
 
 ```javascript
 /**
- * KODEX: FIRESTORE_SECURITY_RULES
+ 
  * Reglas de seguridad para desarrollo
  * NOTA: En producción usar autenticación y reglas más restrictivas
  */
@@ -246,7 +246,7 @@ service cloud.firestore {
 package com.example.aplicacionevaluacion
 
 /**
- * KODEX: DATA_MODEL_CAR
+
  * Modelo principal que representa un automóvil en la aplicación
  * 
  * @property documentId ID único de Firebase (null para nuevos autos)
@@ -270,7 +270,7 @@ data class Car(
 )
 
 /**
- * KODEX: EXTENSION_CAR_TO_MAP
+ 
  * Convierte Car a Map para guardarlo en Firebase
  * Excluye documentId ya que Firebase lo maneja automáticamente
  */
@@ -291,7 +291,7 @@ private fun Car.toMap(): Map<String, Any?> = mapOf(
 package com.example.aplicacionevaluacion
 
 /**
- * KODEX: DATA_MODEL_PURCHASE
+ 
  * Registra las compras realizadas en el sistema
  * 
  * @property carId Referencia al auto comprado
@@ -331,7 +331,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * KODEX: VIEWMODEL_MAIN
+
  * ViewModel principal que gestiona lógica de negocio y conexión con Firebase
  * 
  * RESPONSABILIDADES:
@@ -358,7 +358,7 @@ class CarViewModel : ViewModel() {
     }
 
     /**
-     * KODEX: FUNCTION_FETCH_REALTIME
+    
      * Configura listener en tiempo real con Firebase
      * Actualiza automáticamente cuando hay cambios en la colección
      */
@@ -378,7 +378,7 @@ class CarViewModel : ViewModel() {
     }
 
     /**
-     * KODEX: EXTENSION_DOCUMENT_TO_CAR
+    
      * Convierte DocumentSnapshot de Firebase a objeto Car
      * Agrega el documentId manualmente (Firebase no lo incluye automáticamente)
      */
@@ -392,7 +392,7 @@ class CarViewModel : ViewModel() {
     }
 
     /**
-     * KODEX: FUNCTION_SAVE_CAR
+    
      * Guarda o actualiza un auto en Firebase
      * Si tiene documentId → actualiza, si no → crea nuevo
      */
@@ -410,7 +410,7 @@ class CarViewModel : ViewModel() {
     }
 
     /**
-     * KODEX: FUNCTION_DELETE_CAR
+   
      * Elimina un auto de Firebase
      * Usado al vender un auto o al eliminar manualmente
      */
@@ -427,7 +427,7 @@ class CarViewModel : ViewModel() {
     }
 
     /**
-     * KODEX: FUNCTION_SAVE_PURCHASE
+    
      * Registra una compra en Firebase colección "purchases"
      */
     fun savePurchase(purchase: Purchase, onComplete: (Boolean) -> Unit) {
@@ -473,7 +473,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * KODEX: MAIN_ACTIVITY
+ 
  * Punto de entrada principal de la aplicación
  * Inicializa Jetpack Compose y el tema personalizado
  */
@@ -504,7 +504,7 @@ class MainActivity : ComponentActivity() {
 
 ```kotlin
 /**
- * KODEX: APP_AUTH_WRAPPER
+
  * Composable principal que maneja el estado de autenticación
  * Controla navegación entre login/registro y la app principal
  */
@@ -533,7 +533,7 @@ fun AppWithLogin() {
 
 ```kotlin
 /**
- * KODEX: SCREEN_LOGIN
+ 
  * Pantalla de inicio de sesión con validación básica
  * Credenciales de prueba: Juan / 1234
  */
@@ -630,7 +630,7 @@ fun LoginScreen(
 
 ```kotlin
 /**
- * KODEX: APP_MAIN_NAVIGATION
+ *  APP_MAIN_NAVIGATION
  * Aplicación principal con navegación completa entre 8 pantallas
  * Gestiona estado global y filtros automáticos
  */
@@ -727,7 +727,7 @@ fun LuxuryCarApp() {
 
 ```kotlin
 /**
- * KODEX: SCREEN_HOME
+ *  SCREEN_HOME
  * Pantalla inicial con acceso rápido a 3 marcas principales
  * Diseño centrado con colores temáticos por marca
  */
@@ -780,7 +780,7 @@ fun HomeSection(onBrandClick: (String) -> Unit) {
 
 ```kotlin
 /**
- * KODEX: SECTION_CAR_LIST
+ *  SECTION_CAR_LIST
  * Lista scrollable de autos con sistema de favoritos
  * Usa LazyColumn para rendimiento óptimo
  */
@@ -819,7 +819,7 @@ fun CarListSection(
 
 ```kotlin
 /**
- * KODEX: COMPONENT_CAR_CARD
+ * COMPONENT_CAR_CARD
  * Tarjeta individual para cada auto
  * Incluye botón de favoritos con toggle
  */
@@ -872,7 +872,7 @@ fun CarCard(
 
 ```kotlin
 /**
- * KODEX: SCREEN_AUTO_FORM
+ * SCREEN_AUTO_FORM
  * Formulario para crear o editar autos
  * Incluye validación, switch de subastas y guardado en Firebase
  */
@@ -1039,7 +1039,7 @@ fun AutoFormScreen(
 
 ```kotlin
 /**
- * KODEX: SCREEN_CAR_DETAIL
+ *  SCREEN_CAR_DETAIL
  * Pantalla de detalle con opciones de compra, edición y eliminación
  * Incluye confirmación para eliminación
  */
@@ -1134,7 +1134,7 @@ fun CarDetailScreen(
 
 ```kotlin
 /**
- * KODEX: SCREEN_PAYMENT
+ *  SCREEN_PAYMENT
  * Pantalla de pago con tarjeta
  * Simula proceso de 3 segundos, registra compra y elimina auto
  */
@@ -1271,7 +1271,7 @@ fun PaymentScreen(
 
 ```kotlin
 /**
- * KODEX: SECTION_AUCTION_LIST
+ *  SECTION_AUCTION_LIST
  * Lista de subastas en vivo con diseño temático dorado
  */
 @Composable
@@ -1314,7 +1314,7 @@ fun AuctionListSection(auctions: List<Car>, onClick: (Car) -> Unit) {
 
 ```kotlin
 /**
- * KODEX: SECTION_FAVORITES
+ *  SECTION_FAVORITES
  * Pantalla de favoritos con estado vacío informativo
  */
 @Composable
@@ -1343,7 +1343,7 @@ fun FavoritesSection(favorites: List<Car>, onCarClick: (Car) -> Unit) {
 
 ```kotlin
 /**
- * KODEX: THEME_COLORS
+ *  THEME_COLORS
  * Definición de colores personalizados para LuxuryCar
  */
 package com.example.aplicacionevaluacion.ui.theme
@@ -1372,7 +1372,7 @@ val WarningOrange = Color(0xFFD97706)
 
 ```kotlin
 /**
- * KODEX: THEME_MAIN
+ *  THEME_MAIN
  * Configuración del tema con Material Design 3
  * Incluye soporte para modo oscuro y colores dinámicos
  */
@@ -1446,7 +1446,7 @@ fun AplicacionEvaluacionTheme(
 
 ```kotlin
 /**
- * KODEX: TEST_CAR_MODEL
+ * TEST_CAR_MODEL
  * Pruebas unitarias para el modelo Car
  */
 import org.junit.Test
@@ -1500,7 +1500,7 @@ class CarTest {
 ## 📄 Archivo `.gitignore`
 
 ```
-# KODEX: GITIGNORE_CONFIG
+#  GITIGNORE_CONFIG
 # Archivos y carpetas a excluir del repositorio
 
 # Gradle
