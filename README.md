@@ -1,14 +1,22 @@
-# 🚗 LuxuryCar - Aplicación de Venta de Carros de Lujo
+# 📘 README.md  
+# 🚗 Aplicación de Venta de Carros LuxuryCar
 
 ## 📌 Descripción del Proyecto
 
-**LuxuryCar** es una aplicación móvil Android desarrollada en **Kotlin** utilizando **Jetpack Compose** que permite a los usuarios:
+**LuxuryCar** es una aplicación móvil Android desarrollada en **Kotlin** utilizando **Jetpack Compose**, diseñada para la compra, venta y subasta de automóviles de lujo mediante una interfaz moderna, intuitiva y profesional.
 
-- Comprar autos de lujo
-- Vender autos
-- Participar en subastas en tiempo real
+La aplicación implementa la arquitectura **MVVM (Model–View–ViewModel)** y utiliza **Firebase Firestore** como base de datos NoSQL en tiempo real.  
+El diseño visual se basa en **Material Design 3**, ofreciendo una experiencia elegante y fluida.
 
-La aplicación implementa una arquitectura **MVVM (Model–View–ViewModel)** y utiliza **Firebase Firestore** como base de datos NoSQL en tiempo real. La interfaz está basada en **Material Design 3**, ofreciendo una experiencia visual elegante, fluida y profesional.
+Este documento contiene la **DOCUMENTACIÓN TÉCNICA COMPLETA**, incluyendo:
+- Arquitectura
+- Código fuente explicado archivo por archivo
+- Configuración
+- Instalación
+- Validación y métricas
+- Pruebas
+- Solución de problemas
+- Autores y agradecimientos
 
 ---
 
@@ -20,17 +28,11 @@ La aplicación sigue el patrón **MVVM**, separando responsabilidades:
 - **ViewModel**: Lógica de negocio y conexión con Firebase
 - **View**: Interfaz de usuario con Jetpack Compose
 
-**Ventajas:**
-- ✅ Código limpio y organizado
-- ✅ Fácil mantenimiento
-- ✅ Alta escalabilidad
-- ✅ Mejor testeo y depuración
-
----
-
-## 📷 Capturas de Pantalla
-
-<img width="1174" height="763" alt="image" src="https://github.com/user-attachments/assets/8cbbac19-15a9-4459-bebb-fa4ac253a57e" />
+### Beneficios:
+- Código limpio y desacoplado  
+- Fácil mantenimiento  
+- Escalabilidad  
+- Mejor testeo  
 
 ---
 
@@ -43,13 +45,13 @@ app/
 │ │ └── Purchase.kt
 │ └── repository/
 │ └── CarRepository.kt
+│
 ├── viewmodel/
 │ └── CarViewModel.kt
+│
 ├── ui/
 │ ├── screens/
 │ │ ├── LoginScreen.kt
-│ │ ├── RegisterScreen.kt
-│ │ ├── ForgotPasswordScreen.kt
 │ │ ├── HomeScreen.kt
 │ │ ├── CarDetailScreen.kt
 │ │ ├── AuctionScreen.kt
@@ -58,6 +60,10 @@ app/
 │ ├── Color.kt
 │ ├── Theme.kt
 │ └── Type.kt
+│
+├── navigation/
+│ └── Navigation.kt
+│
 ├── MainActivity.kt
 └── AndroidManifest.xml
 
@@ -68,7 +74,7 @@ Copiar código
 
 ## ⚙️ Configuración de Gradle
 
-### `build.gradle` (Project)
+### build.gradle (Project)
 ```gradle
 buildscript {
     dependencies {
@@ -86,6 +92,7 @@ plugins {
 
 android {
     compileSdk = 34
+
     defaultConfig {
         applicationId = "com.example.luxurycar"
         minSdk = 24
@@ -93,13 +100,20 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
-    buildFeatures { compose = true }
-    composeOptions { kotlinCompilerExtensionVersion = "1.5.3" }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
+    }
 }
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-firestore")
+
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
@@ -108,28 +122,21 @@ dependencies {
 🔥 Configuración de Firebase
 Crear proyecto en Firebase Console
 
-Registrar app Android
+Registrar aplicación Android
 
-Usar el mismo applicationId: com.example.luxurycar
+Usar el mismo applicationId
 
 Descargar google-services.json
 
-Colocarlo en: app/google-services.json
+Colocarlo en:
 
+bash
+Copiar código
+app/google-services.json
 📦 Modelos de Datos
 Car.kt
 kotlin
 Copiar código
-/**
- * Clase de datos que representa un automóvil en Firestore.
- *
- * @property id Identificador único del auto
- * @property brand Marca del vehículo
- * @property model Modelo del vehículo
- * @property year Año de fabricación
- * @property price Precio del vehículo
- * @property isFavorite Indica si está marcado como favorito
- */
 data class Car(
     val id: String = "",
     val brand: String = "",
@@ -138,41 +145,27 @@ data class Car(
     val price: Double = 0.0,
     val isFavorite: Boolean = false
 )
+Representa un automóvil almacenado en Firestore.
+
 Purchase.kt
 kotlin
 Copiar código
-/**
- * Clase que representa una compra realizada por un usuario.
- *
- * @property carId ID del auto comprado
- * @property userId ID del usuario
- * @property date Fecha de compra
- * @property total Total pagado
- */
 data class Purchase(
     val carId: String = "",
     val userId: String = "",
     val date: String = "",
     val total: Double = 0.0
 )
+Representa una compra realizada.
+
 🗄️ Repositorio – Acceso a Firestore
 CarRepository.kt
 kotlin
 Copiar código
-/**
- * Repositorio encargado de manejar el acceso a Firebase Firestore.
- * Gestiona todas las operaciones CRUD y escucha cambios en tiempo real.
- */
 class CarRepository {
 
-    /** Instancia de la base de datos Firestore */
     private val db = FirebaseFirestore.getInstance()
 
-    /**
-     * Obtiene la lista de autos desde Firestore.
-     *
-     * @param onResult Callback que devuelve una lista de objetos Car
-     */
     fun getCars(onResult: (List<Car>) -> Unit) {
         db.collection("cars")
             .addSnapshotListener { snapshot, _ ->
@@ -183,20 +176,10 @@ class CarRepository {
             }
     }
 
-    /**
-     * Agrega un nuevo auto a la base de datos.
-     *
-     * @param car Objeto Car a agregar
-     */
     fun addCar(car: Car) {
         db.collection("cars").add(car)
     }
 
-    /**
-     * Elimina un auto usando su ID.
-     *
-     * @param id Identificador del auto a eliminar
-     */
     fun deleteCar(id: String) {
         db.collection("cars").document(id).delete()
     }
@@ -205,40 +188,23 @@ class CarRepository {
 CarViewModel.kt
 kotlin
 Copiar código
-/**
- * ViewModel encargado de manejar la lógica de negocio
- * y el estado de los autos dentro de la arquitectura MVVM.
- */
 class CarViewModel : ViewModel() {
 
-    /** Repositorio que gestiona el acceso a Firebase */
     private val repository = CarRepository()
 
-    /** StateFlow privado que almacena la lista de autos */
     private val _cars = MutableStateFlow<List<Car>>(emptyList())
-
-    /** StateFlow público de solo lectura */
     val cars: StateFlow<List<Car>> = _cars
 
-    /** Inicializa la lista de autos desde el repositorio */
     init {
-        repository.getCars { _cars.value = it }
+        repository.getCars {
+            _cars.value = it
+        }
     }
 
-    /**
-     * Agrega un nuevo auto.
-     *
-     * @param car Objeto Car a agregar
-     */
     fun addCar(car: Car) {
         repository.addCar(car)
     }
 
-    /**
-     * Elimina un auto por su ID.
-     *
-     * @param id Identificador del auto a eliminar
-     */
     fun deleteCar(id: String) {
         repository.deleteCar(id)
     }
@@ -246,146 +212,99 @@ class CarViewModel : ViewModel() {
 📱 MainActivity
 kotlin
 Copiar código
-/**
- * Actividad principal de la aplicación.
- * Configura la UI y controla la navegación entre login y app principal.
- */
 class MainActivity : ComponentActivity() {
-
-    /** Método que se ejecuta al crear la actividad */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
-            LuxuryCarTheme {
-                AppWithLogin()
+            val carViewModel: CarViewModel = viewModel()
+            AppNavigation(carViewModel)
+        }
+    }
+}
+🧭 Navegación
+Navigation.kt
+kotlin
+Copiar código
+@Composable
+fun AppNavigation(viewModel: CarViewModel) {
+    val navController = rememberNavController()
+
+    NavHost(navController, startDestination = "login") {
+        composable("login") {
+            LoginScreen {
+                navController.navigate("home") {
+                    popUpTo("login") { inclusive = true }
+                }
             }
         }
-    }
-}
-
-/**
- * Composable que maneja la lógica de login, registro y recuperación de contraseña.
- */
-@Composable
-fun AppWithLogin() {
-    var loggedIn by remember { mutableStateOf(false) }
-    var currentScreen by remember { mutableStateOf("login") }
-
-    if (!loggedIn) {
-        when (currentScreen) {
-            "login" -> LoginScreen(
-                onLogin = { loggedIn = true },
-                onRegister = { currentScreen = "register" },
-                onForgot = { currentScreen = "forgot" }
-            )
-            "register" -> RegisterScreen { currentScreen = "login" }
-            "forgot" -> ForgotPasswordScreen { currentScreen = "login" }
+        composable("home") { HomeScreen(viewModel) }
+        composable("detail/{carId}") {
+            CarDetailScreen(it.arguments?.getString("carId") ?: "")
         }
-    } else {
-        LuxuryCarApp() // Pantalla principal después de login
+        composable("auction") { AuctionScreen() }
+        composable("payment") { PaymentScreen { navController.popBackStack() } }
     }
 }
-🖥️ Pantallas de la Aplicación
-LoginScreen.kt
+🖥️ Pantallas Principales
+LoginScreen
+Login simulado preparado para Firebase Auth.
+
+HomeScreen
 kotlin
 Copiar código
 @Composable
-fun LoginScreen(onLogin: () -> Unit, onRegister: () -> Unit, onForgot: () -> Unit) {
-    var user by remember { mutableStateOf("") }
-    var pass by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
+fun HomeScreen(viewModel: CarViewModel) {
+    val cars by viewModel.cars.collectAsState()
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("LuxuryCar", fontSize = 44.sp, fontWeight = FontWeight.ExtraBold)
-        Text("Autos de lujo y subastas en vivo", fontSize = 18.sp, color = Color.Gray)
-        Spacer(Modifier.height(40.dp))
-
-        OutlinedTextField(value = user, onValueChange = { user = it }, label = { Text("Usuario") }, modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(12.dp))
-        OutlinedTextField(value = pass, onValueChange = { pass = it }, label = { Text("Contraseña") }, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(20.dp))
-
-        Button(onClick = { if (user == "Juan" && pass == "1234") onLogin() else error = "Datos incorrectos" }, colors = ButtonDefaults.buttonColors(Color.Black), modifier = Modifier.fillMaxWidth().height(56.dp)) {
-            Text("Iniciar Sesión", color = Color.White, fontSize = 18.sp)
+    LazyColumn {
+        items(cars) { car ->
+            Text("${car.brand} ${car.model} - $${car.price}")
         }
-
-        if (error.isNotEmpty()) Text(error, color = Color.Red, modifier = Modifier.padding(top = 12.dp))
-
-        Spacer(Modifier.height(24.dp))
-        Text("Crear nueva cuenta", color = Color(0xFF2563EB), modifier = Modifier.clickable { onRegister() })
-        Spacer(Modifier.height(8.dp))
-        Text("¿Olvidaste tu contraseña?", color = Color(0xFFDC2626), modifier = Modifier.clickable { onForgot() })
     }
 }
-RegisterScreen.kt
-kotlin
-Copiar código
-@Composable
-fun RegisterScreen(onBack: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Crear Cuenta", fontSize = 32.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(32.dp))
-        OutlinedTextField(value = "", onValueChange = {}, label = { Text("Usuario") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = "", onValueChange = {}, label = { Text("Correo") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = "", onValueChange = {}, label = { Text("Contraseña") }, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(32.dp))
-        Button(onClick = {}, colors = ButtonDefaults.buttonColors(Color.Black), modifier = Modifier.fillMaxWidth()) {
-            Text("Registrarme")
-        }
-        Spacer(Modifier.height(16.dp))
-        Text("Volver", modifier = Modifier.clickable { onBack() })
-    }
-}
-ForgotPasswordScreen.kt
-kotlin
-Copiar código
-@Composable
-fun ForgotPasswordScreen(onBack: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Recuperar Contraseña", fontSize = 32.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(32.dp))
-        OutlinedTextField(value = "", onValueChange = {}, label = { Text("Correo") }, modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(32.dp))
-        Button(onClick = {}, colors = ButtonDefaults.buttonColors(Color.Black), modifier = Modifier.fillMaxWidth()) {
-            Text("Enviar enlace")
-        }
-        Spacer(Modifier.height(24.dp))
-        Text("Volver", modifier = Modifier.clickable { onBack() })
-    }
-}
-❤️ Sistema de Favoritos
+CarDetailScreen
+Pantalla de detalle del vehículo.
+
+AuctionScreen
+Pantalla base para subastas en tiempo real.
+
+PaymentScreen
+Simulación de proceso de pago.
+
+❤️ Favoritos
 kotlin
 Copiar código
 fun toggleFavorite(car: Car): Car {
     return car.copy(isFavorite = !car.isFavorite)
 }
-🎨 Theming
-Color.kt: Gold y Black
-
-Theme.kt: LuxuryCarTheme()
-
-Type.kt: Tipografía base
-
-🧪 Pruebas Unitarias
+🎨 Theme – Material Design 3
+Color.kt
+kotlin
+Copiar código
+val Gold = Color(0xFFD4AF37)
+val Black = Color(0xFF000000)
+Theme.kt
+kotlin
+Copiar código
+@Composable
+fun LuxuryCarTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = lightColorScheme(
+            primary = Gold,
+            background = Black
+        ),
+        content = content
+    )
+}
+🧪 Pruebas
+CarTest.kt
 kotlin
 Copiar código
 class CarTest {
+
     @Test
     fun carPrice_isGreaterThanZero() {
-        val car = Car(id = "1", brand = "Ferrari", model = "Roma", year = 2024, price = 250000.0)
+        val car = Car(price = 250000.0)
         assertTrue(car.price > 0)
     }
 }
@@ -401,53 +320,47 @@ local.properties
 /captures
 .externalNativeBuild
 ⚙️ Instrucciones de Instalación
+Requisitos
+JDK 17+
+
+Android Studio Hedgehog+
+
+Android SDK 34
+
+Firebase activo
+
+Pasos
 bash
 Copiar código
 git clone https://github.com/tu-usuario/LuxuryCar.git
 cd LuxuryCar
 Abrir proyecto en Android Studio
 
-Configurar Firebase (google-services.json)
+Configurar Firebase
 
 Sincronizar Gradle
 
-Configurar emulador o dispositivo físico
+Ejecutar en emulador o dispositivo
 
-Ejecutar la app
+(Opcional) Generar APK
 
-Generar APK (Opcional)
-
-🛠️ Solución de Problemas Comunes
+🛠️ Solución de Problemas
 Problema	Causa	Solución
-Gradle no sincroniza	Caché corrupta	Invalidate Caches
-SDK no encontrado	SDK mal configurado	Revisar SDK Manager
-Firebase no conecta	JSON incorrecto	Revisar ruta del archivo
-Emulador lento	Sin aceleración	Activar HAXM / Hyper-V
-Error de dependencias	Versiones incompatibles	Revisar versiones en Gradle
+Gradle falla	Caché	Invalidate Caches
+Firebase no conecta	JSON mal ubicado	Revisar ruta
+Emulador lento	Sin aceleración	Activar HAXM
 
 📊 Validación y Métricas
-Tipo: Pruebas funcionales y de usabilidad
-Usuarios: 10 estudiantes
-Escenario: Login → Home → Detalle → Compra
-
+Resultados
 Métrica	Resultado
-Usuarios participantes	10
-Satisfacción general	90%
+Usuarios	10
+Satisfacción	90%
 Facilidad de uso	96%
-Curva de aprendizaje	84%
 Diseño visual	94%
-Probabilidad de recomendación	88%
 
 👨‍💻 Autores
 Jesús Antonio Romero Duarte
-Rol: Desarrollador Principal
-Responsabilidades: Arquitectura, Firebase, Lógica de negocio, Backend
+Desarrollador Principal – Arquitectura, Firebase, Backend
 
 Jonathan Andrés Arévalo Rodríguez
-Rol: UI/UX Designer
-Responsabilidades: Diseño de interfaces, Pruebas de usabilidad, Validación
-
-⭐ Si este proyecto te fue útil, no olvides darle una estrella en GitHub!
-
-Desarrollado con ❤️ por el equipo LuxuryCar
-Última actualización: Diciembre 2024
+UI / UX – Pruebas, Validación y Diseño
