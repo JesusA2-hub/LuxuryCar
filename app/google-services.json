@@ -1,0 +1,31 @@
+{
+  "project_info": {
+    "project_number": "223453117024",
+    "project_id": "automarketapp-84369",
+    "storage_bucket": "automarketapp-84369.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:223453117024:android:380db23e8aa80a32bf6105",
+        "android_client_info": {
+          "package_name": "com.example.aplicacionevaluacion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_aC-Uxu4Xw99tODuG1qlINKV17ipT5Io"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+  "configuration_version": "1"
+}
